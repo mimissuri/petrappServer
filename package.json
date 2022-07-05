@@ -10,5 +10,26 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.18"
-  }
+  },
+  "name": "petrapp-server",
+  "version": "0.0.1",
+  "description": "Petrapp server",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamthecro/petrapp.git"
+  },
+  "keywords": [
+    "petrapp"
+  ],
+  "author": "Adam El Messaoudi Aarab",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adamthecro/petrapp/issues"
+  },
+  "homepage": "https://github.com/adamthecro/petrapp#readme"
 }

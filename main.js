@@ -31,6 +31,11 @@ app.get("/getGasolineras/:lat/:long/:q/:t", (req, res) => {
 
 app.listen(app.get("port"), () => {
   console.log(`Server listening on port ${app.get("port")}`);
+  setInterval(function () {
+    axios.get("https://petrapp-2003.herokuapp.com").catch((error) => {
+      console.log(error);
+    });
+  }, 360000);
   updateData();
 });
 

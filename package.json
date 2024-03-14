@@ -1,9 +1,8 @@
 {
   "dependencies": {
-    "axios": "^0.27.2",
-    "express": "^4.18.1",
-    "geokdbush": "^1.1.0",
-    "kdbush": "^3.0.0",
+    "axios": "^1.6.7",
+    "express": "^4.18.3",
+    "kdbush": "^4.0.2",
     "morgan": "^1.10.0",
     "rbush": "^3.0.1",
     "rbush-knn": "^3.0.1"
@@ -14,6 +13,7 @@
   "name": "petrapp-server",
   "version": "0.0.1",
   "description": "Petrapp server",
+  "type": "module",
   "main": "main.js",
   "scripts": {
     "start": "node main.js",

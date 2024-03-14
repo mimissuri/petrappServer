@@ -1,12 +1,11 @@
-var express = require("express");
-const axios = require("axios");
-var fs = require("fs");
-var kdbush = require("kdbush");
-var geokdbush = require("geokdbush");
+import kdbush from "kdbush";
+import express from "express";
+import axios from "axios";
 
-var spatial;
+var spatial = new kdbush(1);
 
 var app = express();
+var data = [];
 
 app.set("port", process.env.PORT || 80);
 app.set("json spaces", 1);
@@ -14,19 +13,27 @@ app.set("json spaces", 1);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.get("/getGasolineras/:lat/:long/:q/:t", (req, res) => {
-  res.json(
-    geokdbush.around(
-      spatial,
-      parseFloat(req.params.lat),
-      parseFloat(req.params.long),
-      Math.min(500, parseInt(req.params.q)),
-      undefined,
-      function (item) {
-        return item.data[parseInt(req.params.t) + 5] != "";
-      }
-    )
+/* lat:Latitud
+ * long:Longitud
+ * d:Distancia
+ * t:Tipo de combustible
+ */
+app.get("/getGasolineras/:lat/:long/:d/:t", (req, res) => {
+  let dist = Math.min(req.params.d, 50000);
+  let lat = parseFloat(req.params.lat);
+  let long = parseFloat(req.params.long);
+  var results = spatial.range(
+    lat - dist / 111195,
+    long - dist / 111195,
+    lat + dist / 111195,
+    long + dist / 111195
   );
+  res.json(results.map((result) => data[result]));
+});
+
+app.get("/updateData", (req, res) => {
+  updateData();
+  res.json({ status: "ok" });
 });
 
 app.listen(app.get("port"), () => {
@@ -38,13 +45,11 @@ function updateData() {
   console.log("Loading data");
   const url =
     "https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres";
-  const file = "data.json";
   axios
     .get(url)
     .then((res) => {
       let json = res["data"];
       let gasolineras = json["ListaEESSPrecio"];
-      var data = [];
       gasolineras.forEach((gasolinera) => {
         var gas = {
           lat: parseFloat(gasolinera["Latitud"].replace(",", ".")),
@@ -73,25 +78,15 @@ function updateData() {
         };
         data.push(gas);
       });
-      spatial = new kdbush(
-        data,
-        (p) => p.lat,
-        (p) => p.long
-      );
+      spatial = new kdbush(data.length);
+      for (var i = 0; i < data.length; i++) {
+        spatial.add(data[i].lat, data[i].long);
+      }
+      spatial.finish();
       console.log("Data loaded");
-      setTimeout(function () {
-        updateData();
-      }, 3600000);
-      fs.writeFile(file, JSON.stringify(data), "utf8", function (err) {
-        if (err) {
-          console.log("An error occured while writing JSON Object to File.");
-          console.log(err);
-        } else {
-          console.log("JSON file has been saved.");
-        }
-      });
     })
     .catch((error) => {
       console.log(error);
+      updateData();
     });
 }

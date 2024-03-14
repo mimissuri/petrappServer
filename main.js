@@ -50,6 +50,7 @@ function updateData() {
     .then((res) => {
       let json = res["data"];
       let gasolineras = json["ListaEESSPrecio"];
+      data = [];
       gasolineras.forEach((gasolinera) => {
         var gas = {
           lat: parseFloat(gasolinera["Latitud"].replace(",", ".")),
